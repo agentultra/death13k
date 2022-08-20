@@ -11,6 +11,6 @@ clean:
 
 watch:
 	@echo "Watching for changes..."
-	@fswatch -r $(src) "echo changed! && make clean && make"
+	@fswatch -o $(src)/*.js --extended -e '^\.#.*' | xargs -n1 -I{} make
 
 .PHONY: all

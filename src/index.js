@@ -30,13 +30,19 @@ const tdraw = m => {
         j++;
     }
 };
-const tFromPixelSpace = (x, y) => [Math.floor(x / 20), Math.floor(y / 20)];
+const tFromPixelSpace = (x, y) => {
+    return [
+        Math.floor(x / 20), Math.floor(y / 20)
+    ];
+};
 const tSolid = (t) => t != 0;
 
 const lvl1 = Array.from({length: 40 * 30}, () => 0);
 tset(lvl1, 4, 4, 1);
 tset(lvl1, 5, 4, 1);
 tset(lvl1, 6, 4, 1);
+tset(lvl1, 6, 5, 1);
+tset(lvl1, 6, 6, 1);
 
 const clr = () => {
     ctx.fillStyle = clrColor;
@@ -89,19 +95,8 @@ const update = (dt) => {
     let nextPy = state.py + state.dy * state.ay
     , nextPx = state.px + state.dx * state.ax;
 
-    // handle tile collisions - y
-    const {dx, dy} = state;
-    for (let x=0; x<20; x++) {
-        let [tx, ty] = tFromPixelSpace(nextPx + x, dy > 0 ? nextPy + 20 : nextPy)
-        , t = tget(state.lvl, tx, ty);
-        if (tSolid(t)) {
-            state.ay = 0;
-            nextPy -= dy > 0
-                ? (nextPy + 20) - (ty * 20)
-                : nextPy - (20 + ty * 20);
-        }
-    }
     // handle tile collisions - x
+    const {dx, dy} = state;
     for (let y=0; y<20; y++) {
         let [tx, ty] = tFromPixelSpace(dx > 0 ? nextPx + 20 : nextPx, nextPy + y)
         , t = tget(state.lvl, tx, ty);
@@ -110,6 +105,19 @@ const update = (dt) => {
             nextPx -= dx > 0
                 ? (nextPx + 20) - (tx * 20)
                 : nextPx - (20 + tx * 20);
+            break;
+        }
+    }
+    // handle tile collisions - y
+    for (let x=0; x<20; x++) {
+        let [tx, ty] = tFromPixelSpace(nextPx + x, dy > 0 ? nextPy + 20 : nextPy)
+        , t = tget(state.lvl, tx, ty);
+        if (tSolid(t)) {
+            state.ay = 0;
+            nextPy -= dy > 0
+                ? (nextPy + 20) - (ty * 20)
+                : nextPy - (20 + ty * 20);
+            break;
         }
     }
 

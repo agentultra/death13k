@@ -96,28 +96,28 @@ const update = (dt) => {
     , nextPx = state.px + state.dx * state.ax;
 
     // handle tile collisions - x
-    const {dx, dy} = state;
-    for (let y=0; y<20; y++) {
-        let [tx, ty] = tFromPixelSpace(dx > 0 ? nextPx + 20 : nextPx, nextPy + y)
-        , t = tget(state.lvl, tx, ty);
-        if (tSolid(t)) {
-            state.ax = 0;
-            nextPx -= dx > 0
-                ? (nextPx + 20) - (tx * 20)
-                : nextPx - (20 + tx * 20);
-            break;
+    const {dx, dy, px, py} = state;
+    for (let x=0; x<Math.abs(px - nextPx); x++) {
+        for (let y=0; y<20; y++) {
+            let [tx, ty] = tFromPixelSpace(dx > 0 ? px + 20 + x : px - x, py + y)
+            , t = tget(state.lvl, tx, ty);
+            if (tSolid(t)) {
+                state.ax = 0;
+                nextPx = px + ((x - 1) * dx);
+                break;
+            }
         }
     }
     // handle tile collisions - y
-    for (let x=0; x<20; x++) {
-        let [tx, ty] = tFromPixelSpace(nextPx + x, dy > 0 ? nextPy + 20 : nextPy)
-        , t = tget(state.lvl, tx, ty);
-        if (tSolid(t)) {
-            state.ay = 0;
-            nextPy -= dy > 0
-                ? (nextPy + 20) - (ty * 20)
-                : nextPy - (20 + ty * 20);
-            break;
+    for (let y=0; y<Math.abs(py - nextPy); y++) {
+        for (let x=0; x<20; x++) {
+            let [tx, ty] = tFromPixelSpace(px + x, dy > 0 ? py + 20 + y : py - y)
+            , t = tget(state.lvl, tx, ty);
+            if (tSolid(t)) {
+                state.ay = 0;
+                nextPy = py + ((y - 1) * dy);
+                break;
+            }
         }
     }
 

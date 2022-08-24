@@ -70,37 +70,43 @@ const soulColors = ['white', 'green', 'yellow', 'pink'];
 
 // main game updates
 
-const init = () => Object.assign(state, {
-    // player position x,y
-    px: 20,
-    py: 20,
-    // soul check radius
-    pr: 18,
-    // player velocity x,y
-    dx: 0,
-    dy: 0,
-    // player acceleration
-    ax: 0, // current x acceleration
-    ay: 0, // current y acceleration
-    am: 3, // max acceleration
-    pf: 0.98, // player friction
-    ps: null, // current soul following player
-    lvl: lvl1,
-    // souls
-    heldSoul: null,
-    numSouls: 4, // determines the length of the souls arrays
-    souls: {
-        x: Array.from({length: 4}, () => randRange(2, 39) * 20),
-        y: Array.from({length: 4}, () => randRange(2, 29) * 20),
-        c: Array.from({length: 4}, () => choose(soulColors))
-    },
-    numGates: 4, // determines the length of the gates arrays
-    gates: {
-        x: [30, 490, 490, 760],
-        y: [290, 30, 560, 290],
-        c: ['white', 'green', 'yellow', 'pink']
-    }
-});
+const init = () => {
+    const startTime = (new Date()).getTime();
+    Object.assign(state, {
+        // player position x,y
+        px: 20,
+        py: 20,
+        // soul check radius
+        pr: 18,
+        // player velocity x,y
+        dx: 0,
+        dy: 0,
+        // player acceleration
+        ax: 0, // current x acceleration
+        ay: 0, // current y acceleration
+        am: 3, // max acceleration
+        pf: 0.98, // player friction
+        ps: null, // current soul following player
+        lvl: lvl1,
+        // souls
+        heldSoul: null,
+        numSouls: 4, // determines the length of the souls arrays
+        souls: {
+            x: Array.from({length: 4}, () => randRange(2, 39) * 20),
+            y: Array.from({length: 4}, () => randRange(2, 29) * 20),
+            c: Array.from({length: 4}, () => choose(soulColors)),
+            ts: Array.from({length: 4}, () => startTime),
+            tl: Array.from({length: 4}, () => 30 * 1000), // wraith timer limit
+            tc: Array.from({length: 4}, () => 30)   // wraith time left
+        },
+        numGates: 4, // determines the length of the gates arrays
+        gates: {
+            x: [30, 490, 490, 760],
+            y: [290, 30, 560, 290],
+            c: ['white', 'green', 'yellow', 'pink']
+        }
+    });
+};
 
 const update = (dt) => {
     if (btn('Up')) state.dy = -1;
@@ -182,6 +188,18 @@ const update = (dt) => {
         state.souls.x[state.heldSoul] = state.px + 10;
         state.souls.y[state.heldSoul] = state.py + 10;
     }
+
+    // update soul state
+    for (let i=0; i<state.numSouls; i++) {
+        let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
+        // update timer
+        state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
+        if (elapsedTime > state.souls.tl[i]) {
+            console.log('Wraith created!');
+            state.souls.tc[i] = state.souls.tl[i] / 1000;
+            state.souls.ts[i] = (new Date()).getTime();
+        }
+    }
 };
 
 const render = () => {
@@ -195,6 +213,8 @@ const render = () => {
         const s = new Path2D();
         s.arc(sx, sy, 10, 0, 2 * Math.PI);
         ctx.fill(s);
+        ctx.fillStyle = 'black';
+        ctx.fillText(state.souls.tc[i], sx, sy);
     }
     for (let i=0; i<state.numGates; i++) {
         ctx.lineWidth = 3;

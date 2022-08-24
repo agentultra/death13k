@@ -60,6 +60,10 @@ const inCircle = (x, y, r, px, py) => {
     return dx*dx + dy*dy <= r*r;
 };
 
+const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
+      (x1 < (x2 + w2) && (x1 + w1) > x2)
+      && (y1 < (y2 + h2) && (y1 + h1) > y2);
+
 // souls
 
 const soulColors = ['white', 'green', 'yellow', 'pink'];
@@ -162,6 +166,19 @@ const update = (dt) => {
 
     // update held soul state
     if (state.heldSoul !== null) {
+        for (let i=0; i<state.numGates; i++) {
+            const playerTouchingGate = intersects(
+                state.px, state.py, 20, 20,
+                state.gates.x[i], state.gates.y[i], 20, 20
+            );
+            const heldSoulMatchesGate =
+                  state.souls.c[state.heldSoul] === state.gates.c[i];
+            if (playerTouchingGate && heldSoulMatchesGate) {
+                state.souls.x[state.heldSoul] = -30;
+                state.souls.y[state.heldSoul] = -30;
+                state.heldSoul = null;
+            }
+        }
         state.souls.x[state.heldSoul] = state.px + 10;
         state.souls.y[state.heldSoul] = state.py + 10;
     }

@@ -49,6 +49,17 @@ const clr = () => {
     ctx.fillRect(0, 0, 800, 600);
 };
 
+// maths
+
+const inCircle = (x, y, r, px, py) => {
+    const dx = Math.abs(x - px);
+    if (dx > r) return false;
+    const dy = Math.abs(y - py);
+    if (dy > r) return false;
+    if (dx + dy <= r) return true;
+    return dx*dx + dy*dy <= r*r;
+};
+
 // souls
 
 const soulColors = ['white', 'green', 'yellow'];
@@ -59,6 +70,8 @@ const init = () => Object.assign(state, {
     // player position x,y
     px: 20,
     py: 20,
+    // soul check radius
+    pr: 18,
     // player velocity x,y
     dx: 0,
     dy: 0,
@@ -70,10 +83,11 @@ const init = () => Object.assign(state, {
     ps: null, // current soul following player
     lvl: lvl1,
     // souls
+    heldSoul: null,
     numSouls: 4, // determines the length of the souls arrays
     souls: {
-        x: Array.from({length: 4}, () => randRange(2, 39)),
-        y: Array.from({length: 4}, () => randRange(2, 29)),
+        x: Array.from({length: 4}, () => randRange(2, 39) * 20),
+        y: Array.from({length: 4}, () => randRange(2, 29) * 20),
         c: Array.from({length: 4}, () => choose(soulColors))
     }
 });
@@ -122,27 +136,43 @@ const update = (dt) => {
     }
 
     // check for soul pickup
-
+    if (state.heldSoul === null) {
+        for (let i=0; i<state.numSouls; i++) {
+            if (inCircle(state.px+10,
+                         state.py+10,
+                         state.pr,
+                         state.souls.x[i],
+                         state.souls.y[i])) {
+                state.heldSoul = i;
+            }
+        }
+    }
 
     // update player state
     state.py = nextPy;
     state.px = nextPx;
     state.dy = Math.abs(state.dy) < 0.1 ? 0 : state.dy * state.pf;
     state.dx = Math.abs(state.dx) < 0.1 ? 0 : state.dx * state.pf;
+
+    // update held soul state
+    if (state.heldSoul !== null) {
+        state.souls.x[state.heldSoul] = state.px + 10;
+        state.souls.y[state.heldSoul] = state.py + 10;
+    }
 };
 
 const render = () => {
     tdraw(state.lvl);
+    ctx.fillStyle = 'red';
+    ctx.fillRect(state.px, state.py, 20, 20);
     for (let i=0; i<state.numSouls; i++) {
         let sx = state.souls.x[i]
         , sy = state.souls.y[i];
         ctx.fillStyle = state.souls.c[i];
         const s = new Path2D();
-        s.arc(sx * 20, sy * 20, 10, 0, 2 * Math.PI);
+        s.arc(sx, sy, 10, 0, 2 * Math.PI);
         ctx.fill(s);
     }
-    ctx.fillStyle = 'red';
-    ctx.fillRect(state.px, state.py, 20, 20);
 };
 
 const loop = dt => {

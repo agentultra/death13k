@@ -62,7 +62,7 @@ const inCircle = (x, y, r, px, py) => {
 
 // souls
 
-const soulColors = ['white', 'green', 'yellow'];
+const soulColors = ['white', 'green', 'yellow', 'pink'];
 
 // main game updates
 
@@ -89,6 +89,12 @@ const init = () => Object.assign(state, {
         x: Array.from({length: 4}, () => randRange(2, 39) * 20),
         y: Array.from({length: 4}, () => randRange(2, 29) * 20),
         c: Array.from({length: 4}, () => choose(soulColors))
+    },
+    numGates: 4, // determines the length of the gates arrays
+    gates: {
+        x: [30, 490, 490, 760],
+        y: [290, 30, 560, 290],
+        c: ['white', 'green', 'yellow', 'pink']
     }
 });
 
@@ -172,6 +178,11 @@ const render = () => {
         const s = new Path2D();
         s.arc(sx, sy, 10, 0, 2 * Math.PI);
         ctx.fill(s);
+    }
+    for (let i=0; i<state.numGates; i++) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = state.gates.c[i];
+        ctx.strokeRect(state.gates.x[i], state.gates.y[i], 20, 20);
     }
 };
 

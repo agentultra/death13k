@@ -153,12 +153,24 @@ const init = () => {
             y: Array.from({length: 4}, () => randRange(2, 29) * 20),
             c: Array.from({length: 4}, () => choose(soulColors)),
             ts: Array.from({length: 4}, () => startTime),
-            tl: Array.from({length: 4}, () => 30 * 1000), // wraith timer limit
+            tl: Array.from({length: 4}, () => 15 * 1000), // wraith timer limit
             tc: Array.from({length: 4}, () => 30)   // wraith time left
+        },
+        wraiths: {
+            numWraiths: 0,
+            x: [],
+            y: []
         },
         numGates: 4, // determines the length of the gates arrays
         gates: initGatesFromMap(lvl1)
     });
+};
+
+const spawnWraith = (x, y) => {
+    console.log('Spawn Wraith');
+    state.wraiths.x.push(x);
+    state.wraiths.y.push(y);
+    state.wraiths.numWraiths++;
 };
 
 const update = (dt) => {
@@ -248,9 +260,13 @@ const update = (dt) => {
         // update timer
         state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
         if (elapsedTime > state.souls.tl[i]) {
-            console.log('Wraith created!');
-            state.souls.tc[i] = state.souls.tl[i] / 1000;
-            state.souls.ts[i] = (new Date()).getTime();
+            if (state.heldSoul !== i) {
+                spawnWraith(state.souls.x[i], state.souls.y[i]);
+                state.souls.x[i] = -30;
+                state.souls.y[i] = -30;
+                state.souls.tc[i] = state.souls.tl[i] / 1000;
+                state.souls.ts[i] = (new Date()).getTime();
+            }
         }
     }
 };
@@ -268,6 +284,10 @@ const render = () => {
         ctx.fill(s);
         ctx.fillStyle = 'black';
         ctx.fillText(state.souls.tc[i], sx, sy);
+    }
+    for (let i=0; i<state.wraiths.numWraiths; i++) {
+        ctx.fillStyle = 'fuchsia';
+        ctx.fillRect(state.wraiths.x[i], state.wraiths.y[i], 20, 20);
     }
     for (let i=0; i<state.numGates; i++) {
         ctx.lineWidth = 3;

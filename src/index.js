@@ -9,6 +9,11 @@ let currentTime = 0
 , clrColor = 'black'
 , state = {};
 
+const soul = {
+    ACTIVE: 0,
+    INACTIVE: 1
+};
+
 // tilemaps -- 40x30 at 20x20px
 const tiles =
       [ 'grey' // floor
@@ -149,6 +154,7 @@ const init = () => {
         heldSoul: null,
         numSouls: 4, // determines the length of the souls arrays
         souls: {
+            state: Array.from({length: 4}, () => soul.ACTIVE),
             x: Array.from({length: 4}, () => randRange(2, 39) * 20),
             y: Array.from({length: 4}, () => randRange(2, 29) * 20),
             c: Array.from({length: 4}, () => choose(soulColors)),
@@ -225,6 +231,7 @@ const update = (dt) => {
                          state.souls.x[i],
                          state.souls.y[i])) {
                 state.heldSoul = i;
+                state.souls.state[i] = soul.INACTIVE;
             }
         }
     }
@@ -256,16 +263,19 @@ const update = (dt) => {
 
     // update soul state
     for (let i=0; i<state.numSouls; i++) {
-        let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
-        // update timer
-        state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
-        if (elapsedTime > state.souls.tl[i]) {
-            if (state.heldSoul !== i) {
-                spawnWraith(state.souls.x[i], state.souls.y[i]);
-                state.souls.x[i] = -30;
-                state.souls.y[i] = -30;
-                state.souls.tc[i] = state.souls.tl[i] / 1000;
-                state.souls.ts[i] = (new Date()).getTime();
+        if (state.souls.state[i] === soul.ACTIVE) {
+            let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
+            // update timer
+            state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
+            if (elapsedTime > state.souls.tl[i]) {
+                if (state.heldSoul !== i) {
+                    spawnWraith(state.souls.x[i], state.souls.y[i]);
+                    state.souls.state[i] = soul.INACTIVE;
+                    state.souls.x[i] = -30;
+                    state.souls.y[i] = -30;
+                    state.souls.tc[i] = state.souls.tl[i] / 1000;
+                    state.souls.ts[i] = (new Date()).getTime();
+                }
             }
         }
     }

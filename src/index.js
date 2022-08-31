@@ -347,8 +347,7 @@ const update = (dt) => {
             const heldSoulMatchesGate =
                   state.souls.c[state.heldSoul] === state.gates.c[i];
             if (playerTouchingGate && heldSoulMatchesGate) {
-                state.souls.x[state.heldSoul] = -30;
-                state.souls.y[state.heldSoul] = -30;
+                despawnSoul(state.heldSoul);
                 state.heldSoul = null;
             }
         }

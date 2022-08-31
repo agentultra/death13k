@@ -126,6 +126,7 @@ const spawnRandomSoul = () => {
             state.souls.x[i] = randRange(2,39) * 20;
             state.souls.y[i] = randRange(2,28) * 20;
             state.souls.s[i] = soul.ACTIVE;
+            state.souls.c[i] = choose(soulColors);
             state.souls.ts[i] = (new Date()).getTime();
             break;
         }

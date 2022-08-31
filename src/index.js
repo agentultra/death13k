@@ -14,6 +14,11 @@ const soul = {
     INACTIVE: 1
 };
 
+const wraith = {
+    WANDERING: 0,
+    CHASING: 1
+};
+
 // tilemaps -- 40x30 at 20x20px
 const tiles =
       [ 'grey' // floor
@@ -165,18 +170,46 @@ const init = () => {
         wraiths: {
             numWraiths: 0,
             x: [],
-            y: []
+            y: [],
+            s: []
         },
         numGates: 4, // determines the length of the gates arrays
         gates: initGatesFromMap(lvl1)
     });
 };
 
+// wraiths
+
 const spawnWraith = (x, y) => {
     console.log('Spawn Wraith');
     state.wraiths.x.push(x);
     state.wraiths.y.push(y);
+    state.wraiths.s.push(wraith.WANDERING);
     state.wraiths.numWraiths++;
+};
+
+const doWraithWandering = (i, dt) => {
+    let [wx, wy] = [state.wraiths.x[i], state.wraiths.y[i]],
+        [vx, vy] = [state.px - wx, state.py - wy],
+        m = Math.sqrt(vx * vx + vy * vy);
+
+    if (200 >= m) state.wraiths.s[i] = wraith.CHASING;
+};
+
+const doWraithChasing = (i, dt) => {
+    let [wx, wy] = [state.wraiths.x[i], state.wraiths.y[i]],
+        [vx, vy] = [state.px - wx, state.py - wy],
+        m = Math.sqrt(vx * vx + vy * vy),
+        [ux, uy] = [vx / m, vy / m];
+    state.wraiths.x[i] += ux * 3;
+    state.wraiths.y[i] += uy * 3;
+};
+
+const updateWraith = (i, dt) => {
+    switch (state.wraiths.s[i]) {
+    case wraith.WANDERING: doWraithWandering(i, dt); break;
+    case wraith.CHASING: doWraithChasing(i, dt); break;
+    }
 };
 
 const update = (dt) => {
@@ -278,6 +311,11 @@ const update = (dt) => {
                 }
             }
         }
+    }
+
+    // update wraith state
+    for (let i=0; i<state.wraiths.numWraiths; i++) {
+        updateWraith(i, dt);
     }
 };
 

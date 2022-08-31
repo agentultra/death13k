@@ -11,7 +11,8 @@ let currentTime = 0
 
 const soul = {
     ACTIVE: 0,
-    INACTIVE: 1
+    INACTIVE: 1,
+    HELD: 2
 };
 
 const wraith = {
@@ -112,6 +113,7 @@ const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
 const soulColors = ['white', 'green', 'yellow', 'purple'];
 
 const despawnSoul = i => {
+    console.log('despawnSoul: ', i);
     state.souls.s[i] = soul.INACTIVE;
     state.souls.x[i] = -30;
     state.souls.y[i] = -30;
@@ -241,6 +243,7 @@ const doWraithWandering = (i, dt) => {
 };
 
 const doWraithChasing = (i, dt) => {
+    console.assert(state.wraiths.s[i] === wraith.CHASING);
     let [wx, wy] = [state.wraiths.x[i], state.wraiths.y[i]],
         [vx, vy] = [state.px - wx, state.py - wy],
         m = Math.sqrt(vx * vx + vy * vy),
@@ -261,6 +264,7 @@ const doWraithChasing = (i, dt) => {
 };
 
 const updateWraith = (i, dt) => {
+    console.assert(typeof state.wraiths.s[i] !== 'undefined', "BUG TRIGGERED");
     switch (state.wraiths.s[i]) {
     case wraith.WANDERING: doWraithWandering(i, dt); break;
     case wraith.CHASING: doWraithChasing(i, dt); break;
@@ -321,7 +325,7 @@ const update = (dt) => {
                              state.souls.x[i],
                              state.souls.y[i])) {
                     state.heldSoul = i;
-                    state.souls.s[i] = soul.INACTIVE;
+                    state.souls.s[i] = soul.HELD;
                 }
             }
         }

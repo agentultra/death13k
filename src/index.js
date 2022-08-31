@@ -116,6 +116,19 @@ const despawnSoul = i => {
     state.souls.y[i] = -30;
 };
 
+const spawnRandomSoul = () => {
+    // TODO: check for walls in the tilemap
+    for (let i=0; i<state.numSouls; i++) {
+        if (state.souls.s[i] === soul.INACTIVE) {
+            state.souls.x[i] = randRange(2,39) * 20;
+            state.souls.y[i] = randRange(2,28) * 20;
+            state.souls.s[i] = soul.ACTIVE;
+            state.souls.ts[i] = (new Date()).getTime();
+            break;
+        }
+    }
+};
+
 // gates
 
 const initGatesFromMap = m => {
@@ -161,7 +174,11 @@ const init = () => {
         pf: 0.98, // player friction
         ps: null, // current soul following player
         ph: 3, // player health
+        // level stuff
         lvl: lvl1,
+        lvlts: startTime, // level time start
+        lvltl: 10 * 1000, // level time limit
+        lvltc: 10, // level time count
         // souls
         heldSoul: null,
         numSouls: 4, // determines the length of the souls arrays
@@ -340,6 +357,15 @@ const update = (dt) => {
     // update wraith state
     for (let i=0; i<state.wraiths.numWraiths; i++) {
         updateWraith(i, dt);
+    }
+
+    // update level state
+    let elapsedTime = (new Date()).getTime() - state.lvlts;
+    state.lvltc = Math.floor((state.lvltl - elapsedTime) / 1000);
+
+    if (0 >= state.lvltc) {
+        spawnRandomSoul();
+        state.lvlts = (new Date()).getTime();
     }
 
     if (-1 >= state.ph) {

@@ -16,7 +16,8 @@ const soul = {
 
 const wraith = {
     WANDERING: 0,
-    CHASING: 1
+    CHASING: 1,
+    INACTIVE: 2
 };
 
 // tilemaps -- 40x30 at 20x20px
@@ -125,6 +126,20 @@ const spawnRandomSoul = () => {
             state.souls.s[i] = soul.ACTIVE;
             state.souls.ts[i] = (new Date()).getTime();
             break;
+        }
+    }
+};
+
+const updateSoul = (i, dt) => {
+    if (state.souls.s[i] === soul.ACTIVE) {
+        let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
+        // update timer
+        state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
+        if (elapsedTime > state.souls.tl[i]) {
+            if (state.heldSoul !== i) {
+                spawnWraith(state.souls.x[i], state.souls.y[i]);
+                despawnSoul(i);
+            }
         }
     }
 };
@@ -299,13 +314,15 @@ const update = (dt) => {
     // check for soul pickup
     if (state.heldSoul === null) {
         for (let i=0; i<state.numSouls; i++) {
-            if (inCircle(state.px+10,
-                         state.py+10,
-                         state.pr,
-                         state.souls.x[i],
-                         state.souls.y[i])) {
-                state.heldSoul = i;
-                state.souls.s[i] = soul.INACTIVE;
+            if (state.souls.s[i] === soul.ACTIVE) {
+                if (inCircle(state.px+10,
+                             state.py+10,
+                             state.pr,
+                             state.souls.x[i],
+                             state.souls.y[i])) {
+                    state.heldSoul = i;
+                    state.souls.s[i] = soul.INACTIVE;
+                }
             }
         }
     }
@@ -337,21 +354,7 @@ const update = (dt) => {
 
     // update soul state
     for (let i=0; i<state.numSouls; i++) {
-        if (state.souls.s[i] === soul.ACTIVE) {
-            let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
-            // update timer
-            state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
-            if (elapsedTime > state.souls.tl[i]) {
-                if (state.heldSoul !== i) {
-                    spawnWraith(state.souls.x[i], state.souls.y[i]);
-                    state.souls.s[i] = soul.INACTIVE;
-                    state.souls.x[i] = -30;
-                    state.souls.y[i] = -30;
-                    state.souls.tc[i] = state.souls.tl[i] / 1000;
-                    state.souls.ts[i] = (new Date()).getTime();
-                }
-            }
-        }
+        updateSoul(i, dt);
     }
 
     // update wraith state

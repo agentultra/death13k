@@ -110,6 +110,12 @@ const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
 
 const soulColors = ['white', 'green', 'yellow', 'purple'];
 
+const despawnSoul = i => {
+    state.souls.s[i] = soul.INACTIVE;
+    state.souls.x[i] = -30;
+    state.souls.y[i] = -30;
+};
+
 // gates
 
 const initGatesFromMap = m => {
@@ -154,12 +160,13 @@ const init = () => {
         am: 3, // max acceleration
         pf: 0.98, // player friction
         ps: null, // current soul following player
+        ph: 3, // player health
         lvl: lvl1,
         // souls
         heldSoul: null,
         numSouls: 4, // determines the length of the souls arrays
         souls: {
-            state: Array.from({length: 4}, () => soul.ACTIVE),
+            s: Array.from({length: 4}, () => soul.ACTIVE),
             x: Array.from({length: 4}, () => randRange(2, 39) * 20),
             y: Array.from({length: 4}, () => randRange(2, 29) * 20),
             c: Array.from({length: 4}, () => choose(soulColors)),
@@ -180,12 +187,17 @@ const init = () => {
 
 // wraiths
 
+// TODO: fixed size
 const spawnWraith = (x, y) => {
     console.log('Spawn Wraith');
     state.wraiths.x.push(x);
     state.wraiths.y.push(y);
     state.wraiths.s.push(wraith.WANDERING);
     state.wraiths.numWraiths++;
+};
+
+const despawnWraith = i => {
+    state.wraiths.s[i] = wraith.INACTIVE;
 };
 
 const doWraithWandering = (i, dt) => {
@@ -203,12 +215,24 @@ const doWraithChasing = (i, dt) => {
         [ux, uy] = [vx / m, vy / m];
     state.wraiths.x[i] += ux * 3;
     state.wraiths.y[i] += uy * 3;
+
+    if (intersects(state.px, state.py, 20, 20,
+                   wx, wy, 20, 20)) {
+        if (state.heldSoul) {
+            despawnSoul(state.heldSoul);
+            state.heldSoul = null;
+        } else {
+            state.ph--;
+        }
+        despawnWraith(i);
+    }
 };
 
 const updateWraith = (i, dt) => {
     switch (state.wraiths.s[i]) {
     case wraith.WANDERING: doWraithWandering(i, dt); break;
     case wraith.CHASING: doWraithChasing(i, dt); break;
+    case wraith.INACTIVE: return;
     }
 };
 
@@ -264,7 +288,7 @@ const update = (dt) => {
                          state.souls.x[i],
                          state.souls.y[i])) {
                 state.heldSoul = i;
-                state.souls.state[i] = soul.INACTIVE;
+                state.souls.s[i] = soul.INACTIVE;
             }
         }
     }
@@ -296,14 +320,14 @@ const update = (dt) => {
 
     // update soul state
     for (let i=0; i<state.numSouls; i++) {
-        if (state.souls.state[i] === soul.ACTIVE) {
+        if (state.souls.s[i] === soul.ACTIVE) {
             let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
             // update timer
             state.souls.tc[i] = Math.floor((state.souls.tl[i] - elapsedTime) / 1000);
             if (elapsedTime > state.souls.tl[i]) {
                 if (state.heldSoul !== i) {
                     spawnWraith(state.souls.x[i], state.souls.y[i]);
-                    state.souls.state[i] = soul.INACTIVE;
+                    state.souls.s[i] = soul.INACTIVE;
                     state.souls.x[i] = -30;
                     state.souls.y[i] = -30;
                     state.souls.tc[i] = state.souls.tl[i] / 1000;
@@ -334,8 +358,10 @@ const render = () => {
         ctx.fillText(state.souls.tc[i], sx, sy);
     }
     for (let i=0; i<state.wraiths.numWraiths; i++) {
-        ctx.fillStyle = 'fuchsia';
-        ctx.fillRect(state.wraiths.x[i], state.wraiths.y[i], 20, 20);
+        if (state.wraiths.s[i] !== wraith.INACTIVE) {
+            ctx.fillStyle = 'fuchsia';
+            ctx.fillRect(state.wraiths.x[i], state.wraiths.y[i], 20, 20);
+        }
     }
     for (let i=0; i<state.numGates; i++) {
         ctx.lineWidth = 3;

@@ -341,6 +341,11 @@ const update = (dt) => {
     for (let i=0; i<state.wraiths.numWraiths; i++) {
         updateWraith(i, dt);
     }
+
+    if (-1 >= state.ph) {
+        console.log('GAME OVER');
+        init();
+    }
 };
 
 const render = () => {

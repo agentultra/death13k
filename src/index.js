@@ -128,7 +128,7 @@ const spawnRandomSoul = () => {
             state.souls.s[i] = soul.ACTIVE;
             state.souls.c[i] = choose(soulColors);
             state.souls.ts[i] = (new Date()).getTime();
-            break;
+            return;
         }
     }
 };
@@ -237,6 +237,7 @@ const despawnWraith = i => {
 };
 
 const doWraithWandering = (i, dt) => {
+    console.assert(state.wraiths.s[i] === wraith.WANDERING, 'Invalid wraith state');
     let [wx, wy] = [state.wraiths.x[i], state.wraiths.y[i]],
         [vx, vy] = [state.px - wx, state.py - wy],
         m = Math.sqrt(vx * vx + vy * vy);
@@ -245,7 +246,7 @@ const doWraithWandering = (i, dt) => {
 };
 
 const doWraithChasing = (i, dt) => {
-    console.assert(state.wraiths.s[i] === wraith.CHASING);
+    console.assert(state.wraiths.s[i] === wraith.CHASING, 'Invalid wraith state');
     let [wx, wy] = [state.wraiths.x[i], state.wraiths.y[i]],
         [vx, vy] = [state.px - wx, state.py - wy],
         m = Math.sqrt(vx * vx + vy * vy),
@@ -255,7 +256,7 @@ const doWraithChasing = (i, dt) => {
 
     if (intersects(state.px, state.py, 20, 20,
                    wx, wy, 20, 20)) {
-        if (state.heldSoul) {
+        if (state.heldSoul !== null) {
             despawnSoul(state.heldSoul);
             state.heldSoul = null;
         } else {

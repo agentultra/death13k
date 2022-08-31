@@ -192,6 +192,7 @@ const init = () => {
         pf: 0.98, // player friction
         ps: null, // current soul following player
         ph: 3, // player health
+        scr: 0, // score
         // level stuff
         lvl: lvl1,
         lvlts: startTime, // level time start
@@ -350,6 +351,7 @@ const update = (dt) => {
             if (playerTouchingGate && heldSoulMatchesGate) {
                 despawnSoul(state.heldSoul);
                 state.heldSoul = null;
+                state.scr += 1;
             }
         }
         state.souls.x[state.heldSoul] = state.px + 10;
@@ -373,6 +375,11 @@ const update = (dt) => {
     if (0 >= state.lvltc) {
         spawnRandomSoul();
         state.lvlts = (new Date()).getTime();
+        const scoreLevelUp = state.scr % 4 == 0,
+              canSpeedUpLevelTimer = 3000 >= state.lvltl;
+        if (scoreLevelUp && canSpeedUpLevelTimer) {
+            state.lvltl -= 5 * 1000;
+        }
     }
 
     if (-1 >= state.ph) {

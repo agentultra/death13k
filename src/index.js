@@ -81,6 +81,22 @@ var lvl1 = [
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 ];
 
+// TileMap -> [[x,y]]
+const initFreeFrom = t => {
+    let x = 0, y = 0, cs = [];
+    while (29 >= y) {
+        while (39 >= x) {
+            if (tget(t, x, y) === 0) {
+                cs.push([x, y]);
+            }
+            x++;
+        }
+        x = 0;
+        y++;
+    }
+    return cs;
+};
+
 const tFromPixelSpace = (x, y) => {
     return [
         Math.floor(x / 20), Math.floor(y / 20)
@@ -120,11 +136,11 @@ const despawnSoul = i => {
 };
 
 const spawnRandomSoul = () => {
-    // TODO: check for walls in the tilemap
+    let [sx, sy] = choose(state.lvlFree);
     for (let i=0; i<state.numSouls; i++) {
         if (state.souls.s[i] === soul.INACTIVE) {
-            state.souls.x[i] = randRange(2,39) * 20;
-            state.souls.y[i] = randRange(2,28) * 20;
+            state.souls.x[i] = sx * 20;
+            state.souls.y[i] = sy * 20;
             state.souls.s[i] = soul.ACTIVE;
             state.souls.c[i] = choose(soulColors);
             state.souls.ts[i] = (new Date()).getTime();
@@ -198,6 +214,7 @@ const init = () => {
         lvlts: startTime, // level time start
         lvltl: 10 * 1000, // level time limit
         lvltc: 10, // level time count
+        lvlFree: initFreeFrom(lvl1),
         // souls
         heldSoul: null,
         numSouls: 4, // determines the length of the souls arrays
@@ -487,4 +504,4 @@ function randRange (min, max) {
 
 function choose (arr) {
     return arr[randRange(0, arr.length)];
-}
+};

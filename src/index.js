@@ -7,7 +7,8 @@ let currentTime = 0
 , fps = 60
 , interval = fps / 1000
 , clrColor = 'black'
-, state = {};
+, state = {}
+, spriteSheet = new Image();
 
 const soul = {
     ACTIVE: 0,
@@ -423,8 +424,7 @@ const update = (dt) => {
 
 const render = () => {
     tdraw(state.lvl);
-    ctx.fillStyle = 'red';
-    ctx.fillRect(state.px, state.py, 20, 20);
+    ctx.drawImage(spriteSheet, 0, 0, 20, 20, state.px, state.py, 20, 20);
     for (let i=0; i<state.numSouls; i++) {
         let sx = state.souls.x[i]
         , sy = state.souls.y[i];
@@ -461,8 +461,11 @@ const loop = dt => {
     }
 };
 
-init();
-window.requestAnimationFrame(loop);
+(async () => {
+    spriteSheet = await loadImage('test-sprite.png');
+    init();
+    window.requestAnimationFrame(loop);
+})();
 
 // input handling
 
@@ -515,8 +518,12 @@ function randRange (min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min);
-};
+}
 
 function choose (arr) {
     return arr[randRange(0, arr.length)];
-};
+}
+
+function loadImage(url) {
+    return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = url; });
+}

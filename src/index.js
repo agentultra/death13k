@@ -333,7 +333,7 @@ const update = (dt) => {
             , t = tget(state.lvl, tx, ty);
             if (tSolid(t)) {
                 state.ax = 0;
-                nextPx = px + ((x - 1) * dx);
+                nextPx = px + ((dx > 0 ? x : x - 1) * dx);
                 break;
             }
         }
@@ -345,7 +345,7 @@ const update = (dt) => {
             , t = tget(state.lvl, tx, ty);
             if (tSolid(t)) {
                 state.ay = 0;
-                nextPy = py + ((y - 1) * dy);
+                nextPy = py + ((dy > 0 ? y : y - 1) * dy);
                 break;
             }
         }

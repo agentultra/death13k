@@ -149,6 +149,20 @@ const spawnRandomSoul = () => {
     }
 };
 
+const initSouls = () => {
+    let sx, sy;
+    for (let i=0; i<state.numSouls; i++) {
+        [sx, sy] = choose(state.lvlFree);
+        state.souls.s.push(soul.ACTIVE);
+        state.souls.x.push(sx * 20);
+        state.souls.y.push(sy * 20);
+        state.souls.c.push(choose(soulColors));
+        state.souls.ts.push((new Date()).getTime());
+        state.souls.tl.push(15 * 1000);
+        state.souls.tc.push(30);
+    }
+};
+
 const updateSoul = (i, dt) => {
     if (state.souls.s[i] === soul.ACTIVE) {
         let elapsedTime = (new Date()).getTime() - state.souls.ts[i];
@@ -219,13 +233,13 @@ const init = () => {
         heldSoul: null,
         numSouls: 4, // determines the length of the souls arrays
         souls: {
-            s: Array.from({length: 4}, () => soul.ACTIVE),
-            x: Array.from({length: 4}, () => randRange(2, 39) * 20),
-            y: Array.from({length: 4}, () => randRange(2, 29) * 20),
-            c: Array.from({length: 4}, () => choose(soulColors)),
-            ts: Array.from({length: 4}, () => startTime),
-            tl: Array.from({length: 4}, () => 15 * 1000), // wraith timer limit
-            tc: Array.from({length: 4}, () => 30)   // wraith time left
+            s: [],
+            x: [],
+            y: [],
+            c: [],
+            ts: [],
+            tl: [], // wraith timer limit
+            tc: []   // wraith time left
         },
         wraiths: {
             numWraiths: 0,
@@ -236,6 +250,7 @@ const init = () => {
         numGates: 4, // determines the length of the gates arrays
         gates: initGatesFromMap(lvl1)
     });
+    initSouls();
 };
 
 // wraiths

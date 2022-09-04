@@ -5,6 +5,7 @@ all:
 	@mkdir -p $(dst)
 	@find $(src) \( -name '*.js' ! -iname '.*' \) -exec cat {} + > $(dst)/index.js
 	@cp $(src)/index.html $(dst)/index.html
+	@cp test-sprite.png $(dst)/test-sprite.png
 	@echo "Built"
 
 clean:

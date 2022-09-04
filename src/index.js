@@ -40,8 +40,11 @@ const tdraw = m => {
     while (j < 30) {
         while (i < 40) {
             let t = tget(m, i, j);
-            ctx.fillStyle = tiles[t > 1 ? 0 : t];
-            ctx.fillRect(i * 20, j * 20, 20, 20);
+            if (t === 0) {
+                ctx.drawImage(spriteSheet, 0, 20, 20, 20, i * 20, j * 20, 20, 20);
+            } else {
+                ctx.drawImage(spriteSheet, 20, 20, 20, 20, i * 20, j * 20, 20, 20);
+            }
             i++;
         }
         i = 0;

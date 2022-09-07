@@ -448,8 +448,9 @@ const render = () => {
     }
     for (let i=0; i<state.wraiths.numWraiths; i++) {
         if (state.wraiths.s[i] !== wraith.INACTIVE) {
-            ctx.fillStyle = 'fuchsia';
-            ctx.fillRect(state.wraiths.x[i], state.wraiths.y[i], 20, 20);
+            let wx = state.wraiths.x[i],
+                wy = state.wraiths.y[i];
+            ctx.drawImage(spriteSheet, 40, 20, 20, 20, wx, wy, 20, 20);
         }
     }
     for (let i=0; i<state.numGates; i++) {

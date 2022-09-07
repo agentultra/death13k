@@ -1,5 +1,7 @@
 const stage = document.getElementById('stage');
 const ctx = stage.getContext('2d');
+const bg = document.getElementById('bg');
+const bgCtx = bg.getContext('2d');
 
 let currentTime = 0
 , lastTime = (new Date()).getTime()
@@ -130,7 +132,7 @@ const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
 
 // souls
 
-const soulColors = ['white', 'green', 'yellow', 'purple'];
+const soulColors = ["rgba(255, 255, 255, 0.5)", "rgba(0, 255, 0, 0.5)", "rgba(0, 200, 200, 0.5)", "rgba(200, 0, 120, 0.5)"];
 
 const despawnSoul = i => {
     console.log('despawnSoul: ', i);
@@ -151,6 +153,19 @@ const spawnRandomSoul = () => {
             return;
         }
     }
+};
+
+const renderSoul = i => {
+    let sx = state.souls.x[i],
+        sy = state.souls.y[i];
+    bgCtx.save();
+    bgCtx.fillStyle = state.souls.c[i];
+    bgCtx.fillRect(0, 0, 20, 20);
+    bgCtx.globalCompositeOperation = 'destination-atop';
+    bgCtx.drawImage(spriteSheet, 40, 0, 20, 20, 0, 0, 20, 20);
+    bgCtx.restore();
+    ctx.drawImage(bg, 0, 0, 20, 20, sx, sy, 20, 20);
+    bgCtx.clearRect(0, 0, bg.width, bg.height);
 };
 
 const initSouls = () => {
@@ -429,14 +444,7 @@ const render = () => {
     tdraw(state.lvl);
     ctx.drawImage(spriteSheet, 0, 0, 20, 20, state.px, state.py, 20, 20);
     for (let i=0; i<state.numSouls; i++) {
-        let sx = state.souls.x[i]
-        , sy = state.souls.y[i];
-        ctx.fillStyle = state.souls.c[i];
-        const s = new Path2D();
-        s.arc(sx, sy, 10, 0, 2 * Math.PI);
-        ctx.fill(s);
-        ctx.fillStyle = 'black';
-        ctx.fillText(state.souls.tc[i], sx, sy);
+        renderSoul(i);
     }
     for (let i=0; i<state.wraiths.numWraiths; i++) {
         if (state.wraiths.s[i] !== wraith.INACTIVE) {

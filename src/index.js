@@ -29,10 +29,10 @@ const tiles =
       [ 'grey' // floor
       , 'blue' // wall
       // gates
-      , 'yellow'
-      , 'white'
-      , 'green'
-      , 'purple'
+      , "rgba(255, 255, 255, 0.5)"
+      , "rgba(0, 255, 0, 0.5)"
+      , "rgba(0, 200, 200, 0.5)"
+      , "rgba(200, 0, 120, 0.5)"
       ];
 
 const tset = (m, x, y, v) => m[y * 40 + x] = v;

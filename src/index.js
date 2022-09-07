@@ -196,6 +196,19 @@ const updateSoul = (i, dt) => {
     }
 };
 
+// reaper
+
+const renderReaper = () => {
+    if (state.pface === 0) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(spriteSheet, 0, 0, 20, 20, (state.px + 20) * -1, state.py, 20, 20);
+        ctx.restore();
+    } else {
+        ctx.drawImage(spriteSheet, 0, 0, 20, 20, state.px, state.py, 20, 20);
+    }
+};
+
 // gates
 
 const initGatesFromMap = m => {
@@ -231,6 +244,7 @@ const init = () => {
         py: 20,
         // soul check radius
         pr: 18,
+        pface: 0, // player facing, 0 = left, otherwise = right
         // player velocity x,y
         dx: 0,
         dy: 0,
@@ -329,8 +343,14 @@ const updateWraith = (i, dt) => {
 const update = (dt) => {
     if (btn('Up')) state.dy = -1;
     if (btn('Down')) state.dy = 1;
-    if (btn('Left')) state.dx = -1;
-    if (btn('Right')) state.dx = 1;
+    if (btn('Left')) {
+        state.dx = -1;
+        state.pface = 0;
+    }
+    if (btn('Right')) {
+        state.dx = 1;
+        state.pface = 1;
+    };
 
     // update player acceleration
     state.ay = btn('Up') || btn('Down')
@@ -442,7 +462,7 @@ const update = (dt) => {
 
 const render = () => {
     tdraw(state.lvl);
-    ctx.drawImage(spriteSheet, 0, 0, 20, 20, state.px, state.py, 20, 20);
+    renderReaper();
     for (let i=0; i<state.numSouls; i++) {
         renderSoul(i);
     }

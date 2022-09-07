@@ -278,7 +278,8 @@ const init = () => {
             numWraiths: 0,
             x: [],
             y: [],
-            s: []
+            s: [],
+            f: []
         },
         numGates: 4, // determines the length of the gates arrays
         gates: initGatesFromMap(lvl1)
@@ -294,6 +295,7 @@ const spawnWraith = (x, y) => {
     state.wraiths.x.push(x);
     state.wraiths.y.push(y);
     state.wraiths.s.push(wraith.WANDERING);
+    state.wraiths.f.push(choose[0, 1]);
     state.wraiths.numWraiths++;
 };
 
@@ -316,6 +318,11 @@ const doWraithChasing = (i, dt) => {
         [vx, vy] = [state.px - wx, state.py - wy],
         m = Math.sqrt(vx * vx + vy * vy),
         [ux, uy] = [vx / m, vy / m];
+    if (ux > 0) {
+        state.wraiths.f[i] = 0;
+    } else {
+        state.wraiths.f[i] = 1;
+    }
     state.wraiths.x[i] += ux * 3;
     state.wraiths.y[i] += uy * 3;
 
@@ -337,6 +344,19 @@ const updateWraith = (i, dt) => {
     case wraith.WANDERING: doWraithWandering(i, dt); break;
     case wraith.CHASING: doWraithChasing(i, dt); break;
     case wraith.INACTIVE: return;
+    }
+};
+
+const renderWraith = i => {
+    let wx = state.wraiths.x[i],
+        wy = state.wraiths.y[i];
+    if (state.wraiths.f[i] === 0) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(spriteSheet, 40, 20, 20, 20, (wx + 20) * -1, wy, 20, 20);
+        ctx.restore();
+    } else {
+        ctx.drawImage(spriteSheet, 40, 20, 20, 20, wx, wy, 20, 20);
     }
 };
 
@@ -468,9 +488,7 @@ const render = () => {
     }
     for (let i=0; i<state.wraiths.numWraiths; i++) {
         if (state.wraiths.s[i] !== wraith.INACTIVE) {
-            let wx = state.wraiths.x[i],
-                wy = state.wraiths.y[i];
-            ctx.drawImage(spriteSheet, 40, 20, 20, 20, wx, wy, 20, 20);
+            renderWraith(i);
         }
     }
     for (let i=0; i<state.numGates; i++) {

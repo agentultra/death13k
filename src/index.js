@@ -170,12 +170,14 @@ const spawnRandomSoul = () => {
 
 const renderSoul = i => {
     let sx = state.souls.x[i],
-        sy = state.souls.y[i];
+        sy = state.souls.y[i],
+        animIdx = state.souls.anim[i],
+        [sprX, sprY] = getSprite(getAnimSpriteIdx(animIdx));
     bgCtx.save();
     bgCtx.fillStyle = state.souls.c[i];
     bgCtx.fillRect(0, 0, 20, 20);
     bgCtx.globalCompositeOperation = 'destination-atop';
-    bgCtx.drawImage(spriteSheet, 40, 0, 20, 20, 0, 0, 20, 20);
+    bgCtx.drawImage(spriteSheet, sprX, sprY, 20, 20, 0, 0, 20, 20);
     bgCtx.restore();
     ctx.drawImage(bg, 0, 0, 20, 20, sx, sy, 20, 20);
     bgCtx.clearRect(0, 0, bg.width, bg.height);
@@ -192,6 +194,7 @@ const initSouls = () => {
         state.souls.ts.push((new Date()).getTime());
         state.souls.tl.push(15 * 1000);
         state.souls.tc.push(30);
+        state.souls.anim.push(addAnim([2, 3], 50, 0));
     }
 };
 
@@ -323,7 +326,8 @@ const init = () => {
             c: [],
             ts: [],
             tl: [], // wraith timer limit
-            tc: []   // wraith time left
+            tc: [], // wraith time left
+            anim: []
         },
         wraiths: {
             numWraiths: 0,

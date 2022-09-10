@@ -24,6 +24,14 @@ const wraith = {
     INACTIVE: 2
 };
 
+// spritesheet -- 9 x 2, 20x20px
+
+const getSprite = i => {
+    const sx = (i % 9) * 20,
+          sy = Math.floor(i / 9) * 20;
+    return [sx, sy];
+};
+
 // tilemaps -- 40x30 at 20x20px
 const tiles =
       [ 'grey' // floor
@@ -204,13 +212,14 @@ const updateSoul = (i, dt) => {
 // reaper
 
 const renderReaper = () => {
+    const [sx, sy] = getSprite(getAnimSpriteIdx(state.pAnim));
     if (state.pface === 0) {
         ctx.save();
         ctx.scale(-1, 1);
-        ctx.drawImage(spriteSheet, 0, 0, 20, 20, (state.px + 20) * -1, state.py, 20, 20);
+        ctx.drawImage(spriteSheet, sx, sy, 20, 20, (state.px + 20) * -1, state.py, 20, 20);
         ctx.restore();
     } else {
-        ctx.drawImage(spriteSheet, 0, 0, 20, 20, state.px, state.py, 20, 20);
+        ctx.drawImage(spriteSheet, sx, sy, 20, 20, state.px, state.py, 20, 20);
     }
 };
 
@@ -237,6 +246,36 @@ const initGatesFromMap = m => {
         j++;
     }
     return {x, y, c};
+};
+
+// animations
+
+const addAnim = (frames, speed, current) => {
+    const i = state.anims.frames.push(frames);
+    state.anims.speed.push(speed);
+    state.anims.currentFrame.push(current);
+    state.anims.tickElapsed.push(0);
+    state.anims.numAnims = i;
+    return i - 1;
+};
+
+const updateAnims = () => {
+    for (let i=0; i<state.anims.numAnims; i++) {
+        const speed = state.anims.speed[i],
+              tickElapsed = state.anims.tickElapsed[i],
+              currentFrame = state.anims.currentFrame[i];
+        if (tickElapsed >= speed) {
+            state.anims.currentFrame[i] = (currentFrame + 1) % state.anims.frames[i].length;
+            state.anims.tickElapsed[i] = 0;
+        }
+        state.anims.tickElapsed[i] = state.anims.tickElapsed[i] + 1;
+    }
+};
+
+const getAnimSpriteIdx = i => {
+    const currentFrame = state.anims.currentFrame[i],
+          frames = state.anims.frames[i];
+    return frames[currentFrame];
 };
 
 // main game updates
@@ -267,6 +306,13 @@ const init = () => {
         lvltl: 10 * 1000, // level time limit
         lvltc: 10, // level time count
         lvlFree: initFreeFrom(lvl1),
+        // animations
+        anims: {
+            frames: [], // [[Int]]
+            currentFrame: [], // [Int]
+            tickElapsed: [], // [Int]
+            speed: [] // [Int]
+        },
         // souls
         heldSoul: null,
         numSouls: 4, // determines the length of the souls arrays
@@ -290,6 +336,7 @@ const init = () => {
         gates: initGatesFromMap(lvl1)
     });
     initSouls();
+    state.pAnim = addAnim([0, 1], 30, 0);
 };
 
 // wraiths
@@ -478,6 +525,8 @@ const update = (dt) => {
             state.lvltl -= 5 * 1000;
         }
     }
+
+    updateAnims();
 
     if (-1 >= state.ph) {
         console.log('GAME OVER');

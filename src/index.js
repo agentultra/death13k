@@ -132,7 +132,12 @@ const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
 
 // souls
 
-const soulColors = ["rgba(255, 255, 255, 0.5)", "rgba(0, 255, 0, 0.5)", "rgba(0, 200, 200, 0.5)", "rgba(200, 0, 120, 0.5)"];
+const soulColors =
+      ["rgba(255, 255, 255, 0.5)",
+       "rgba(0, 255, 0, 0.5)",
+       "rgba(0, 200, 200, 0.5)",
+       "rgba(200, 0, 120, 0.5)"
+      ];
 
 const despawnSoul = i => {
     console.log('despawnSoul: ', i);

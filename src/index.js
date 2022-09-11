@@ -503,6 +503,7 @@ const update = (dt) => {
                 despawnSoul(state.heldSoul);
                 state.heldSoul = null;
                 state.scr += 1;
+                spawnRandomSoul();
             }
         }
         state.souls.x[state.heldSoul] = state.px + 10;

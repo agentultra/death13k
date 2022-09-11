@@ -12,6 +12,8 @@ let currentTime = 0
 , state = {}
 , spriteSheet = new Image();
 
+const wraithCollisions = new Set();
+
 const soul = {
     ACTIVE: 0,
     INACTIVE: 1,
@@ -135,8 +137,8 @@ const inCircle = (x, y, r, px, py) => {
 };
 
 const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
-      (x1 < (x2 + w2) && (x1 + w1) > x2)
-      && (y1 < (y2 + h2) && (y1 + h1) > y2);
+      (x1 <= (x2 + w2) && (x1 + w1) >= x2)
+      && (y1 <= (y2 + h2) && (y1 + h1) >= y2);
 
 // souls
 
@@ -432,6 +434,30 @@ const updateWraiths = () => {
     for (const i of activeWraiths()) {
         updateWraith(i, dt);
     }
+    for (const i of activeWraiths()) {
+        let wx = state.wraiths.x[i],
+            wy = state.wraiths.y[i];
+        if (wraithCollisions.size === 0) {
+            wraithCollisions.add({x: wx, y: wy});
+        } else {
+            for (const c of wraithCollisions.values()) {
+                if (intersects(wx, wy, 20, 20, c.x, c.y, 20, 20)) {
+                    while (intersects(wx, wy, 20, 20, c.x, c.y, 20, 20)) {
+                        wx += c.x >= wx
+                            ? -1
+                            : 1;
+                        wy += c.y >= wx
+                            ? -1
+                            : 1;
+                    }
+                }
+            }
+            state.wraiths.x[i] = wx;
+            state.wraiths.y[i] = wy;
+            wraithCollisions.add({x: wx, y: wy});
+        }
+    }
+    wraithCollisions.clear();
 };
 
 const renderWraith = i => {

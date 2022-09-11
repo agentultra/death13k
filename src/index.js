@@ -341,6 +341,7 @@ const init = () => {
         gates: initGatesFromMap(lvl1)
     });
     initSouls();
+    initWraiths(8);
     state.pAnim = addAnim([0, 1], 30, 0);
 };
 
@@ -348,17 +349,31 @@ const init = () => {
 
 // TODO: fixed size
 const spawnWraith = (x, y) => {
-    console.log('Spawn Wraith');
-    state.wraiths.x.push(x);
-    state.wraiths.y.push(y);
-    state.wraiths.s.push(wraith.WANDERING);
-    state.wraiths.f.push(choose[0, 1]);
-    state.wraiths.anim.push(addAnim([11, 12], 15, 0));
-    state.wraiths.numWraiths++;
+    for (let i=0; i<state.wraiths.numWraiths; i++) {
+        if (state.wraiths.s[i] === wraith.INACTIVE) {
+            state.wraiths.x[i] = x;
+            state.wraiths.y[i] = y;
+            state.wraiths.s[i] = wraith.WANDERING;
+            state.wraiths.f[i] = choose([0, 1]);
+            return;
+        }
+    }
 };
 
 const despawnWraith = i => {
     state.wraiths.s[i] = wraith.INACTIVE;
+};
+
+const initWraiths = (maxWraiths) => {
+    while (maxWraiths >= 1) {
+        state.wraiths.x.push(-30);
+        state.wraiths.y.push(-30);
+        state.wraiths.s.push(wraith.INACTIVE);
+        state.wraiths.f.push(0);
+        state.wraiths.anim.push(addAnim([11, 12], 15, 0));
+        state.wraiths.numWraiths++;
+        maxWraiths--;
+    }
 };
 
 const doWraithWandering = (i, dt) => {

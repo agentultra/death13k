@@ -378,6 +378,12 @@ const initWraiths = (maxWraiths) => {
     }
 };
 
+const activeWraiths = () =>
+      state.wraiths.s.reduce((ws, w, i) => {
+          if (w !== wraith.INACTIVE) ws.push(i);
+          return ws;
+      }, []);
+
 const doWraithWandering = (i, dt) => {
     console.assert(state.wraiths.s[i] === wraith.WANDERING, 'Invalid wraith state');
     let [wx, wy] = [state.wraiths.x[i], state.wraiths.y[i]],
@@ -423,7 +429,7 @@ const updateWraith = (i, dt) => {
 };
 
 const updateWraiths = () => {
-    for (let i=0; i<state.wraiths.numWraiths; i++) {
+    for (const i of activeWraiths()) {
         updateWraith(i, dt);
     }
 };

@@ -422,6 +422,12 @@ const updateWraith = (i, dt) => {
     }
 };
 
+const updateWraiths = () => {
+    for (let i=0; i<state.wraiths.numWraiths; i++) {
+        updateWraith(i, dt);
+    }
+};
+
 const renderWraith = i => {
     let wx = state.wraiths.x[i],
         wy = state.wraiths.y[i],
@@ -533,9 +539,7 @@ const update = (dt) => {
     }
 
     // update wraith state
-    for (let i=0; i<state.wraiths.numWraiths; i++) {
-        updateWraith(i, dt);
-    }
+    updateWraiths();
 
     // update level state
     let elapsedTime = (new Date()).getTime() - state.lvlts;

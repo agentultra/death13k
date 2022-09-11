@@ -54,8 +54,11 @@ const tdraw = m => {
             let t = tget(m, i, j);
             if (t === 0) {
                 ctx.drawImage(spriteSheet, 0, 20, 20, 20, i * 20, j * 20, 20, 20);
-            } else {
+            } else if (t === 1) {
                 ctx.drawImage(spriteSheet, 20, 20, 20, 20, i * 20, j * 20, 20, 20);
+            } else {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(i * 20, j * 20, 20, 20);
             }
             i++;
         }
@@ -605,9 +608,21 @@ const render = () => {
         renderWraith(i);
     }
     for (let i=0; i<state.numGates; i++) {
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = state.gates.c[i];
-        ctx.strokeRect(state.gates.x[i], state.gates.y[i], 20, 20);
+        // ctx.lineWidth = 3;
+        // ctx.strokeStyle = state.gates.c[i];
+        // ctx.strokeRect(state.gates.x[i], state.gates.y[i], 20, 20);
+        const gx = state.gates.x[i],
+              gy = state.gates.y[i],
+              gc = state.gates.c[i],
+              [sprX, sprY] = getSprite(4);
+        bgCtx.save();
+        bgCtx.fillStyle = gc;
+        bgCtx.fillRect(0, 0, 20, 20);
+        bgCtx.globalCompositeOperation = 'destination-atop';
+        bgCtx.drawImage(spriteSheet, sprX, sprY, 20, 20, 0, 0, 20, 20);
+        bgCtx.restore();
+        ctx.drawImage(bg, 0, 0, 20, 20, gx, gy, 20, 20);
+        bgCtx.clearRect(0, 0, bg.width, bg.height);
     }
 };
 

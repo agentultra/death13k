@@ -361,6 +361,8 @@ const spawnWraith = (x, y) => {
 };
 
 const despawnWraith = i => {
+    state.wraiths.x[i] = -30;
+    state.wraiths.y[i] = -30;
     state.wraiths.s[i] = wraith.INACTIVE;
 };
 

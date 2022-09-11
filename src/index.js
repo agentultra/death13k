@@ -3,8 +3,6 @@ const ctx = stage.getContext('2d');
 const bg = document.getElementById('bg');
 const bgCtx = bg.getContext('2d');
 
-const wraithCollisions = new Set();
-
 let currentTime = 0
 , lastTime = (new Date()).getTime()
 , dt = 0
@@ -137,8 +135,8 @@ const inCircle = (x, y, r, px, py) => {
 };
 
 const intersects = (x1, y1, w1, h1, x2, y2, w2, h2) =>
-      (x1 <= (x2 + w2) && (x1 + w1) >= x2)
-      && (y1 <= (y2 + h2) && (y1 + h1) >= y2);
+      (x1 < (x2 + w2) && (x1 + w1) > x2)
+      && (y1 < (y2 + h2) && (y1 + h1) > y2);
 
 // souls
 
@@ -150,6 +148,7 @@ const soulColors =
       ];
 
 const despawnSoul = i => {
+    console.log('despawnSoul: ', i);
     state.souls.s[i] = soul.INACTIVE;
     state.souls.x[i] = -30;
     state.souls.y[i] = -30;
@@ -362,8 +361,6 @@ const spawnWraith = (x, y) => {
 };
 
 const despawnWraith = i => {
-    state.wraiths.x[i] = -30;
-    state.wraiths.y[i] = -30;
     state.wraiths.s[i] = wraith.INACTIVE;
 };
 
@@ -416,52 +413,11 @@ const doWraithChasing = (i, dt) => {
 
 const updateWraith = (i, dt) => {
     console.assert(typeof state.wraiths.s[i] !== 'undefined', "BUG TRIGGERED");
-    console.assert(state.wraiths.s[i] === wraith.INACTIVE
-                   && state.wraiths.x[i] === -30
-                   && state.wraiths.y[i] === -30, 'INACTIVE WRAITH ON SCREEN');
     switch (state.wraiths.s[i]) {
     case wraith.WANDERING: doWraithWandering(i, dt); break;
     case wraith.CHASING: doWraithChasing(i, dt); break;
     case wraith.INACTIVE: return;
     }
-};
-
-const activeWraiths = () => {
-    return state.wraiths.s.reduce((ws, s, i) => {
-        if (s !== wraith.INACTIVE) ws.push(i);
-        return ws;
-    }, []);
-};
-
-const updateWraiths = () => {
-    for (const i in activeWraiths()) {
-        updateWraith(i, dt);
-        let wx = state.wraiths.x[i],
-            wy = state.wraiths.y[i];
-        if (wraithCollisions.size === 0) {
-            wraithCollisions.add({wx, wy, i});
-        } else {
-            // check for collisions and update
-            for (const cw of wraithCollisions) {
-                if (intersects(wx, wy, 20, 20, cw.wx, cw.wy, 20, 20)) {
-                    while (intersects(wx, wy, 20, 20, cw.wx, cw.wy, 20, 20)) {
-                        // modify wx until condition no longer met
-                        wx += cw.wx >= wx
-                            ? -1
-                            : 1;
-                        wy += cw.wy >= wy
-                            ? -1
-                            : 1;
-                    }
-                    state.wraiths.x[i] = wx;
-                    state.wraiths.y[i] = wy;
-                    wraithCollisions.add({wx, wy, i});
-                    break;
-                }
-            }
-        }
-    }
-    wraithCollisions.clear();
 };
 
 const renderWraith = i => {
@@ -575,7 +531,9 @@ const update = (dt) => {
     }
 
     // update wraith state
-    updateWraiths();
+    for (let i=0; i<state.wraiths.numWraiths; i++) {
+        updateWraith(i, dt);
+    }
 
     // update level state
     let elapsedTime = (new Date()).getTime() - state.lvlts;

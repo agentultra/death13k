@@ -601,10 +601,8 @@ const render = () => {
     for (let i=0; i<state.numSouls; i++) {
         renderSoul(i);
     }
-    for (let i=0; i<state.wraiths.numWraiths; i++) {
-        if (state.wraiths.s[i] !== wraith.INACTIVE) {
-            renderWraith(i);
-        }
+    for (const i of activeWraiths()) {
+        renderWraith(i);
     }
     for (let i=0; i<state.numGates; i++) {
         ctx.lineWidth = 3;

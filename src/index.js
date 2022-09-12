@@ -604,6 +604,9 @@ const renderUI = () => {
             [sx, sy] = getSprite(sprIdx);
         ctx.drawImage(spriteSheet, sx, sy, 20, 20, i * 20 + 20, 570, 20, 20);
     }
+    ctx.fillStyle = 'white';
+    ctx.font = '18px mono';
+    ctx.fillText(`Score: ${state.scr}`, 100, 586);
 };
 
 const render = () => {

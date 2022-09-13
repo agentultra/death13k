@@ -18,4 +18,7 @@ watch:
 	@echo "Watching for changes..."
 	@fswatch -o $(src) --extended --exclude '^\.#.*' | xargs -n1 -I{} make
 
+zip: all
+	@zip -r death13k.zip dst/
+
 .PHONY: all

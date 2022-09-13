@@ -12,7 +12,14 @@ let currentTime = 0
 , state = {}
 , spriteSheet = new Image();
 
-const wraithCollisions = new Set();
+const wraithCollisions = new Set(),
+      collectSound = new Audio('pickupCoin.wav'),
+      hitSound = new Audio('hitHurt.wav'),
+      stealSound = new Audio('steal.wav');
+
+collectSound.volume = 0.7;
+hitSound.volume = 0.5;
+stealSound.volume = 0.5;
 
 const soul = {
     ACTIVE: 0,
@@ -417,8 +424,10 @@ const doWraithChasing = (i, dt) => {
         if (state.heldSoul !== null) {
             despawnSoul(state.heldSoul);
             state.heldSoul = null;
+            stealSound.play();
         } else {
             state.ph--;
+            hitSound.play();
         }
         despawnWraith(i);
     }
@@ -561,6 +570,7 @@ const update = (dt) => {
                 despawnSoul(state.heldSoul);
                 state.heldSoul = null;
                 state.scr += 1;
+                collectSound.play();
                 spawnRandomSoul();
             }
         }
